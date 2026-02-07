@@ -1,0 +1,68 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>My Personal AI</title>
+    <style>
+        body { font-family: -apple-system, sans-serif; background: #f4f4f9; margin: 0; display: flex; flex-direction: column; height: 100vh; }
+        #chat-container { flex: 1; overflow-y: auto; padding: 20px; display: flex; flex-direction: column; gap: 10px; }
+        .msg { padding: 12px; border-radius: 15px; max-width: 80%; word-wrap: break-word; }
+        .user { align-self: flex-end; background: #007bff; color: white; }
+        .ai { align-self: flex-start; background: #e9e9eb; color: black; }
+        #input-area { padding: 15px; background: white; border-top: 1px solid #ddd; display: flex; gap: 10px; }
+        input { flex: 1; padding: 12px; border: 1px solid #ccc; border-radius: 25px; outline: none; font-size: 16px; }
+        button { background: #007bff; color: white; border: none; padding: 10px 20px; border-radius: 25px; font-weight: bold; }
+    </style>
+</head>
+<body>
+
+<div id="chat-container">
+    <div class="msg ai">Hello! I'm your personal Gemini app. How can I help?</div>
+</div>
+
+<div id="input-area">
+    <input type="text" id="userInput" placeholder="Ask me anything...">
+    <button onclick="sendMessage()">Send</button>
+</div>
+
+<script type="module">
+    import { GoogleGenerativeAI } from "https://esm.run/@google/generative-ai";
+
+    const API_KEY = AIzaSyDBh8VnXMDUHbPZUpHb9i-Rpl3g0e3gRRI; // <--- PUT YOUR KEY HERE
+    const genAI = new GoogleGenerativeAI(API_KEY);
+    const model = genAI.getGenerativeModel({ model: "gemini-3-flash" });
+
+    window.sendMessage = async () => {
+        const input = document.getElementById('userInput');
+        const container = document.getElementById('chat-container');
+        if (!input.value) return;
+
+        // Display User Message
+        const userDiv = document.createElement('div');
+        userDiv.className = 'msg user';
+        userDiv.textContent = input.value;
+        container.appendChild(userDiv);
+        
+        const prompt = input.value;
+        input.value = '';
+        container.scrollTop = container.scrollHeight;
+
+        try {
+            const result = await model.generateContent(prompt);
+            const response = await result.response;
+            
+            // Display AI Message
+            const aiDiv = document.createElement('div');
+            aiDiv.className = 'msg ai';
+            aiDiv.textContent = response.text();
+            container.appendChild(aiDiv);
+        } catch (e) {
+            console.error(e);
+            alert("Error: Check your API Key or connection.");
+        }
+        container.scrollTop = container.scrollHeight;
+    };
+</script>
+</body>
+</html>
